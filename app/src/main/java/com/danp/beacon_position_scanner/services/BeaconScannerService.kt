@@ -1,5 +1,6 @@
 package com.danp.artexploreapp.services
 
+import Point
 import android.Manifest
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
@@ -21,6 +22,7 @@ import com.idnp2024a.beaconscanner.BeaconScanerLibrary.Beacon
 import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BeaconParser
 import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BleScanCallback
 import dagger.hilt.android.AndroidEntryPoint
+import trilateration
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -220,12 +222,28 @@ class BeaconScannerService : Service() {
             newYPosition = 1.1
         } else {
             Log.d(TAG, "LISTA: $beaconCerca")
-            newXPosition = 2.0
-            newYPosition = 2.0
+
+            // Extract points and distances from the beacons
+            val P1 = Point(beaconCerca[0].major!!.toDouble(), beaconCerca[0].minor!!.toDouble())
+            val P2 = Point(beaconCerca[1].major!!.toDouble(), beaconCerca[1].minor!!.toDouble())
+            val P3 = Point(beaconCerca[2].major!!.toDouble(), beaconCerca[2].minor!!.toDouble())
+
+            val R1 = beaconCerca[0].distance!!
+            val R2 = beaconCerca[1].distance!!
+            val R3 = beaconCerca[2].distance!!
+
+            // Perform trilateration
+            val receptorPosition = trilateration(P1, P2, P3, R1, R2, R3)
+            if (receptorPosition != null) {
+                newXPosition = receptorPosition.x
+                newYPosition = receptorPosition.y
+            } else {
+                newXPosition = 2.1
+                newYPosition = 2.1
+            }
         }
-
-
     }
+
 
     private fun getMostFrequentMajor(beacons: List<Beacon>): Int? {
         // Contar las apariciones de cada major en los beacons recientes
