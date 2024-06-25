@@ -318,7 +318,7 @@ class BeaconScannerService : Service() {
                 val parsedBeacon = BeaconParser.parseIBeacon(it, beacon.rssi)
                 // CHECK uuid BEACON
 
-                if(parsedBeacon.uuid == UUDI) {
+                if(true || parsedBeacon.uuid == UUDI) {
 
 
                     // Clave para identificar el beacon por su ID mayor y menor
