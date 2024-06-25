@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.danp.beacon_position_scanner.controllService.ServiceSwitchViewModel
+import com.danp.beacon_position_scanner.controllService.EjemploService
 import com.danp.beacon_position_scanner.ui.theme.Beacon_Position_ScannerTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,6 +26,10 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+
+                    // Mostrar la función Final
+                    Final()
+//                    EjemploService(ServiceSwitchViewModel())
                 }
             }
         }
