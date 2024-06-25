@@ -17,13 +17,18 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.danp.artexploreapp.services.utilsIBeacon.PermissionManager
 import com.idnp2024a.beaconscanner.BeaconScanerLibrary.Beacon
 import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BeaconParser
 import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BleScanCallback
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class BeaconScannerService : Service() {
 
+    @Inject
+    lateinit var context: Context // Contexto del servicio
     private val TAG = "c"
     private val binder = MyBinder()
 
@@ -34,7 +39,7 @@ class BeaconScannerService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var btScanner: BluetoothLeScanner
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var context: Context // Contexto del servicio
+//    private lateinit var context: Context // Contexto del servicio
 
     // HashMap para almacenar los últimos 5 valores de RSSI por beacon
     private val beaconRssiMap = HashMap<String, MutableList<Int>>()
@@ -61,6 +66,11 @@ class BeaconScannerService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "OnCreate BeaconScannerService")
+
+        Log.d(TAG, "Check Permission")
+//        val permissionManager = PermissionManager.from(context)
+
+
         context = applicationContext // Asignar el contexto de la aplicación
         initBluetooth()
         scanCallBack  = createBleScanCallback();

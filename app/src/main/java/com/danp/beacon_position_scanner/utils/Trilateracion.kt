@@ -4,9 +4,10 @@ import kotlin.math.sqrt
 data class Point(val x: Double, val y: Double)
 
 fun trilateration(P1: Point, P2: Point, P3: Point, R1: Double, R2: Double, R3: Double): Point? {
+    val disP1P2 = distance(P1, P2);
     val ex = Point(
-        (P2.x - P1.x) / distance(P1, P2),
-        (P2.y - P1.y) / distance(P1, P2)
+        (P2.x - P1.x) / disP1P2,
+        (P2.y - P1.y) / disP1P2
     )
     val i = dotProduct(ex, Point(P3.x - P1.x, P3.y - P1.y))
     val ey = Point(
@@ -35,12 +36,12 @@ fun dotProduct(P1: Point, P2: Point): Double {
 
 // Ejemplo de uso:
 fun main() {
-    val P1 = Point(50.0, 50.0)
-    val P2 = Point(300.0, 430.0)
-    val P3 = Point(590.0, 50.0)
-    val R1 = 700.0
-    val R2 = 200.0
-    val R3 = 100.0
+    val P1 = Point(0.0, 0.0)
+    val P2 = Point(0.0, 800.0)
+    val P3 = Point(600.0, 400.0)
+    val R1 = 200.0
+    val R2 = 577.0
+    val R3 = 450.0
 
     val receptorPosition = trilateration(P1, P2, P3, R1, R2, R3)
     if (receptorPosition != null) {
