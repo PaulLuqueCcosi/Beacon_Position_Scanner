@@ -19,10 +19,5 @@ class AppModule {
         return  context
     }
 
-    @Provides
-    @Singleton
-    fun providePermissionManager(@ApplicationContext context: Context): PermissionManager {
-        // Suponiendo que PermissionManager tiene un método para obtener una instancia desde el contexto
-        return PermissionManager.from(context)
-    }
+
 }
