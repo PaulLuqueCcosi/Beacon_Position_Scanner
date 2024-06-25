@@ -130,10 +130,10 @@ class ServiceSwitchViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             while (isBound) {
                 beaconService?.let { service ->
-                    val currentGallery = service.getCurrentGallery()
-                    val nearestPainting = service.getNearestPainting()
-                    Log.d(TAG, "Current Gallery: $currentGallery")
-                    Log.d(TAG, "Nearest Painting: $nearestPainting")
+                    val currentGallery = service.getNewXPosition()
+                    val nearestPainting = service.getNewYPosition()
+                    Log.d(TAG, "New X: $currentGallery")
+                    Log.d(TAG, "New Y: $nearestPainting")
                 }
                 delay(2000) // Espera 5 segundos antes de la próxima consulta
             }
