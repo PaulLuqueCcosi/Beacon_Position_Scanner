@@ -27,8 +27,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
 
+                    // Mostrar la función Final
                     Final()
-                    EjemploService(ServiceSwitchViewModel())
                 }
             }
         }
