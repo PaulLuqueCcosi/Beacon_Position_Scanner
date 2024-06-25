@@ -8,8 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
@@ -19,9 +17,11 @@ import com.danp.artexploreapp.services.BeaconScannerService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class MarkerViewModel : ViewModel() {
 
+    private var primeraVez = true;
     // Estado mutable para las posiciones del marcador
     var posX by mutableStateOf(400.dp)
         private set
@@ -117,18 +117,45 @@ class MarkerViewModel : ViewModel() {
     }
     private fun startPollingService() {
         viewModelScope.launch(Dispatchers.IO) {
+            var previousPosX: Dp? = null
+            var previousPosY: Dp? = null
+
             while (isBound) {
                 beaconService?.let { service ->
-                    val positionXFromService = service.getNewXPosition()
-                    val positionYFromService = service.getNewYPosition()
-                    val newPosX = positionXFromService?.toDp()
-                    val newPosY = positionYFromService?.toDp()
+                    val positionXFromService = service.getNewXPosition()?.toDp()
+                    val positionYFromService = service.getNewYPosition()?.toDp()
 
-                    updatePosition(newPosX, newPosY)
-                    Log.d(TAG, "New X: $positionXFromService")
-                    Log.d(TAG, "New Y: $positionYFromService")
+                    // Verificar si las posiciones anteriores no son nulas
+                    if (!primeraVez && previousPosX != null && previousPosY != null && positionXFromService != null && positionYFromService != null) {
+                        // Calcular la diferencia absoluta entre las posiciones anteriores y las nuevas posiciones
+                        val deltaX = abs(positionXFromService.value - previousPosX!!.value)
+                        val deltaY = abs(positionYFromService.value - previousPosY!!.value)
+
+                        // Definir un umbral para cambios abruptos (ajustar según tus necesidades)
+                        val threshold = 30.0
+
+                        // Si la diferencia es mayor que el umbral, omitir la actualización
+                        if (deltaX > threshold || deltaY > threshold) {
+                            Log.d(TAG, "Position change skipped due to abrupt change. New X: $positionXFromService, New Y: $positionYFromService")
+                        } else {
+                            // Actualizar las posiciones y almacenar las nuevas posiciones como anteriores
+                            updatePosition(positionXFromService, positionYFromService)
+                            previousPosX = positionXFromService
+                            previousPosY = positionYFromService
+                            Log.d(TAG, "New X: $positionXFromService")
+                            Log.d(TAG, "New Y: $positionYFromService")
+                        }
+                    } else {
+                        primeraVez = false;
+                        // Si las posiciones anteriores son nulas, actualizar sin validar
+                        updatePosition(positionXFromService, positionYFromService)
+                        previousPosX = positionXFromService
+                        previousPosY = positionYFromService
+                        Log.d(TAG, "New X: $positionXFromService")
+                        Log.d(TAG, "New Y: $positionYFromService")
+                    }
                 }
-                delay(1000) // Espera 5 segundos antes de la próxima consulta
+                delay(1000) // Espera 1 segundo antes de la próxima consulta
             }
         }
     }
