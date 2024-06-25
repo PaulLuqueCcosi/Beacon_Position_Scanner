@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
 
                     // Mostrar la función Final
                     Final()
+                    EjemploService(ServiceSwitchViewModel())
                 }
             }
         }
