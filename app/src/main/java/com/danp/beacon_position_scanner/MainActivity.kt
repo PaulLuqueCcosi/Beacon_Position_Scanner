@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.danp.artexploreapp.artRoom.presentation.viewModels.ServiceSwitchViewModel
+import com.danp.beacon_position_scanner.controllService.ServiceSwitchViewModel
 import com.danp.beacon_position_scanner.controllService.EjemploService
 import com.danp.beacon_position_scanner.ui.theme.Beacon_Position_ScannerTheme
 
