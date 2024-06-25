@@ -36,13 +36,13 @@ fun dotProduct(P1: Point, P2: Point): Double {
 
 // Ejemplo de uso:
 fun main() {
-    val P1 = Point(0.0, 0.0)
-    val P2 = Point(0.0, 800.0)
-    val P3 = Point(600.0, 400.0)
-    val R1 = 200.0
-    val R2 = 577.0
-    val R3 = 450.0
-
+    val P1 = Point(800.0, 350.0)
+    val P2 = Point(0.0, 700.0)
+    val P3 = Point(800.0, 700.0)
+    val R1 = 400.0
+    val R2 = 500.0
+    val R3 = 500.0
+//    (Point(x=800.0, y=350.0), 2.6887192376492446) - (Point(x=0.0, y=700.0), 6.019292593000714) - (Point(x=800.0, y=700.0), 6.648555106100166)
     val receptorPosition = trilateration(P1, P2, P3, R1, R2, R3)
     if (receptorPosition != null) {
         println("Receiver located at: (${receptorPosition.x}, ${receptorPosition.y})")
