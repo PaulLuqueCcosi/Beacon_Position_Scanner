@@ -29,7 +29,7 @@ class BeaconScannerService : Service() {
 
     @Inject
     lateinit var context: Context // Contexto del servicio
-    private val TAG = "c"
+    private val TAG = "BeaconScannerService"
     private val binder = MyBinder()
 
     private var currentGallery: String? = ""

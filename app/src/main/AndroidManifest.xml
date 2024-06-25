@@ -22,6 +22,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Beacon_Position_Scanner"
         tools:targetApi="31">
+
+        <service
+            android:name="com.danp.artexploreapp.services.BeaconScannerService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="TODO" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
