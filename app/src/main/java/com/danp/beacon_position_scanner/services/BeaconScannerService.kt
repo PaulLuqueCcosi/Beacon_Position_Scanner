@@ -40,8 +40,7 @@ class BeaconScannerService : Service() {
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var btScanner: BluetoothLeScanner
     private lateinit var bluetoothAdapter: BluetoothAdapter
-//    private lateinit var context: Context // Contexto del servicio
-
+    private val UUDI = "2f234454cf6d4a0fadf2f4911ba9ffa6"
     // HashMap para almacenar los últimos 5 valores de RSSI por beacon
     private val beaconRssiMap = HashMap<String, MutableList<Int>>()
 
@@ -310,33 +309,37 @@ class BeaconScannerService : Service() {
             manufacturer = result?.device?.name
             rssi = result?.rssi
         }
-        Log.d(TAG, "Scan: $beacon")
+        Log.d(TAG, "Scanaaaa: $beacon")
         val rssiThreshold = -100 // Ejemplo: Ignorar señales con RSSI menor a -100 dBm
 
         // Verificar si el RSSI es mayor al umbral
         if (beacon.rssi != null && beacon.rssi!! >= rssiThreshold) {
             scanRecord?.bytes?.let {
                 val parsedBeacon = BeaconParser.parseIBeacon(it, beacon.rssi)
+                // CHECK uuid BEACON
 
-                // Clave para identificar el beacon por su ID mayor y menor
-                val beaconId = "${parsedBeacon.major}-${parsedBeacon.minor}"
+                if(parsedBeacon.uuid == UUDI) {
 
-                // Obtener o inicializar la lista de RSSI para este beacon
-                val rssiList = beaconRssiMap.getOrPut(beaconId) { mutableListOf() }
 
-                // Agregar el nuevo valor de RSSI a la lista
-                rssiList.add(parsedBeacon.rssi ?: 0)
+                    // Clave para identificar el beacon por su ID mayor y menor
+                    val beaconId = "${parsedBeacon.major}-${parsedBeacon.minor}"
 
-                // Mantener la lista de RSSI limitada a los últimos 10 valores
-                if (rssiList.size > 10) {
+                    // Obtener o inicializar la lista de RSSI para este beacon
+                    val rssiList = beaconRssiMap.getOrPut(beaconId) { mutableListOf() }
+
+                    // Agregar el nuevo valor de RSSI a la lista
+                    rssiList.add(parsedBeacon.rssi ?: 0)
+
+                    // Mantener la lista de RSSI limitada a los últimos 10 valores
+                    if (rssiList.size > 10) {
 //                    Log.e("ArtRoomViewModel", "Lleno se elimina" + rssiList.get(0) + " ingresa : " + parsedBeacon)
-                    rssiList.removeAt(0) // Eliminar el valor más antiguo
+                        rssiList.removeAt(0) // Eliminar el valor más antiguo
+                    }
+
+                    // Actualizar la lista de todos los beacons escaneados (histórico)
+                    updateScannedBeaconsList(parsedBeacon)
+                    Log.d(TAG, "PARA Almacenar: $parsedBeacon")
                 }
-
-                // Actualizar la lista de todos los beacons escaneados (histórico)
-                updateScannedBeaconsList(parsedBeacon)
-                Log.d(TAG, "PARA Almacenar: $parsedBeacon")
-
             }
         }else{
             Log.d(TAG, "Beacon ignorado por señal débil: $beacon")
