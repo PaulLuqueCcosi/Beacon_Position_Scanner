@@ -4,13 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
-class BTPermissions(private val activity: AppCompatActivity){
+class BTPermissions(private val activity: ComponentActivity){
     private val TAG = "BTPermissions"
     private lateinit var permissionsList: ArrayList<String>
     private var permissionsCount = 0

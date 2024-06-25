@@ -11,14 +11,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.danp.artexploreapp.services.utilsIBeacon.PermissionManager
 import com.danp.beacon_position_scanner.controllService.ServiceSwitchViewModel
 import com.danp.beacon_position_scanner.controllService.EjemploService
 import com.danp.beacon_position_scanner.ui.theme.Beacon_Position_ScannerTheme
+import com.idnp2024a.beaconscanner.permissions.BTPermissions
 
 class MainActivity : ComponentActivity() {
+    private lateinit var btPermissions: BTPermissions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+//        btPermissions = BTPermissions(this)
+        BTPermissions(this).check()
+
         setContent {
             Beacon_Position_ScannerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
