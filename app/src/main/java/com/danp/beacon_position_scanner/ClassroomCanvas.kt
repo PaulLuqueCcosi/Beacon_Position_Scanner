@@ -1,6 +1,6 @@
 package com.danp.beacon_position_scanner
 
-import MarkerViewModel
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.danp.beacon_position_scanner.viewModel.MarkerViewModel
 import kotlin.random.Random
 
 object ProjSizes {
