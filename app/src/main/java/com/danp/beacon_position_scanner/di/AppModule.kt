@@ -1,7 +1,6 @@
 package com.danp.beacon_position_scanner.di
 
 import android.content.Context
-import com.danp.artexploreapp.services.utilsIBeacon.PermissionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

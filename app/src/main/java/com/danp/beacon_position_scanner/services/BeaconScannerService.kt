@@ -1,4 +1,4 @@
-package com.danp.artexploreapp.services
+package com.danp.beacon_position_scanner.services
 
 import Point
 import android.Manifest
@@ -18,9 +18,9 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.idnp2024a.beaconscanner.BeaconScanerLibrary.Beacon
-import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BeaconParser
-import com.idnp2024a.beaconscanner.BeaconScanerLibrary.BleScanCallback
+import com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary.Beacon
+import com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary.BeaconParser
+import com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary.BleScanCallback
 import dagger.hilt.android.AndroidEntryPoint
 import trilateration
 import javax.inject.Inject
@@ -91,7 +91,7 @@ class BeaconScannerService : Service() {
         }
     }
 
-    private fun startScannerBeacons(scanCallBack:BleScanCallback ){
+    private fun startScannerBeacons(scanCallBack: BleScanCallback){
         if(btScanner == null)
             return
 

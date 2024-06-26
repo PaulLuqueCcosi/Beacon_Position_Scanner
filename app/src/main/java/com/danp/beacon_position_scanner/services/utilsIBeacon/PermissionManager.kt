@@ -1,4 +1,4 @@
-package com.danp.artexploreapp.services.utilsIBeacon
+package com.danp.beacon_position_scanner.services.utilsIBeacon
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION

@@ -1,4 +1,4 @@
-package com.idnp2024a.beaconscanner.BeaconScanerLibrary
+package com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary
 
 object Utils {
     @OptIn(ExperimentalStdlibApi::class)

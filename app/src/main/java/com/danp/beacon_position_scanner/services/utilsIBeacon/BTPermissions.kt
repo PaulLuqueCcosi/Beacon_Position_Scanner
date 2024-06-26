@@ -1,6 +1,5 @@
-package com.idnp2024a.beaconscanner.permissions
+package com.danp.beacon_position_scanner.services.utilsIBeacon
 
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -8,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 class BTPermissions(private val activity: ComponentActivity){

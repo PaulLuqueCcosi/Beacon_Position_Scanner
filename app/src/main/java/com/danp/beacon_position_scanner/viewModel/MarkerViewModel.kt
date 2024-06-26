@@ -1,3 +1,5 @@
+package com.danp.beacon_position_scanner.viewModel
+
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,11 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.danp.artexploreapp.services.BeaconScannerService
+import com.danp.beacon_position_scanner.services.BeaconScannerService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 class MarkerViewModel : ViewModel() {
 
