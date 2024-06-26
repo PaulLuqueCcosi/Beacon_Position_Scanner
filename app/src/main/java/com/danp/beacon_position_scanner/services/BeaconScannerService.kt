@@ -216,7 +216,8 @@ class BeaconScannerService : Service() {
     private fun handleBeacons(beacons: Collection<Beacon>) {
         val beaconCerca = getNearestBeacons(beacons.toList(), 3)
 
-        if (beaconCerca.size != 3) {
+        if (beaconCerca.size < 3) {
+            Log.d("LOGGER", "No se registran suficientes beacons")
             newXPosition = 1.1
             newYPosition = 1.1
         } else {
@@ -227,18 +228,24 @@ class BeaconScannerService : Service() {
             val P2 = Point(beaconCerca[1].major!!.toDouble(), beaconCerca[1].minor!!.toDouble())
             val P3 = Point(beaconCerca[2].major!!.toDouble(), beaconCerca[2].minor!!.toDouble())
 
-            val R1 = beaconCerca[0].distance!!
-            val R2 = beaconCerca[1].distance!!
-            val R3 = beaconCerca[2].distance!!
+            val R1 = beaconCerca[0].distance!! * 100;
+            val R2 = beaconCerca[1].distance!! * 100;
+            val R3 = beaconCerca[2].distance!! * 100;
 
+            Log.d("LOGGER", "Puntos: (${P1}, ${R1}) - (${P2}, ${R2}) - (${P3}, ${R3}) ")
             // Perform trilateration
+            Log.d("LOGGER", "Distancias: ${R1}, ${R2}, ${R3}")
             val receptorPosition = trilateration(P1, P2, P3, R1, R2, R3)
+            Log.e("LOGGER", "Trilateracion: (${receptorPosition} ")
+
             if (receptorPosition != null) {
                 newXPosition = receptorPosition.x
                 newYPosition = receptorPosition.y
             } else {
-                newXPosition = 2.1
-                newYPosition = 2.1
+                Log.d("LOGGER", "Error en la Trilateracion ")
+
+                newXPosition = 800.0
+                newYPosition = 800.0
             }
         }
     }
@@ -275,21 +282,28 @@ class BeaconScannerService : Service() {
 //        return closestBeacon
 //    }
 
-    private fun getNearestBeacons(beacons: List<Beacon>, number: Int = 3): List<Beacon> {
-        // List to store beacons with their calculated distances
+    private fun getNearestBeacons(beacons: List<Beacon>, number: Int = 1): List<Beacon> {
+//         List to store beacons with their calculated distances
+        Log.d("LOGGER", "Lista dde beacons ${beacons}")
         val beaconDistanceList = mutableListOf<Pair<Beacon, Double>>()
 
         for (beacon in beacons) {
             val beaconId = "${beacon.major}-${beacon.minor}"
 
-            val distance = beacon.calculateDistanceAverageFilter(beacon.txPower!!, beacon.rssi!!, 3.0, beaconRssiMap.get(beaconId)!!)
+            val distance = beacon.calculateDistanceAverageFilter(beacon.txPower!!, beacon.rssi!!, 4.0, beaconRssiMap.get(beaconId)!!)
+            Log.i("LOGGER", "Distancia beacon (${beacon.major}, ${beacon.minor}) -> ${distance} -> ${beacon.rssi}")
             if (distance != null) {
                 beaconDistanceList.add(beacon to distance)
             }
         }
-
+        Log.d("LOGGER","Lista actualizada : (${beaconDistanceList.size}) ${beaconDistanceList.toString()}")
         // Sort the list by distance and return the closest 'number' beacons
-        return beaconDistanceList.sortedBy { it.second }.take(number).map { it.first }
+        val newFilterList = beaconDistanceList.sortedBy { it.second }.take(number).map { it.first }
+        Log.d("LOGGER","Lista actualizada filtrada :(${newFilterList.size}) ${newFilterList}")
+        newFilterList.map { it -> (
+            Log.e("LOGGER","B :(${it.major}, ${it.minor}) ->  ${it.distance}")
+                ) }
+        return newFilterList
     }
 
     private fun createBleScanCallback(): BleScanCallback {
@@ -310,7 +324,7 @@ class BeaconScannerService : Service() {
             rssi = result?.rssi
         }
         Log.d(TAG, "Scanaaaa: $beacon")
-        val rssiThreshold = -100 // Ejemplo: Ignorar señales con RSSI menor a -100 dBm
+        val rssiThreshold = -170 // Ejemplo: Ignorar señales con RSSI menor a -100 dBm
 
         // Verificar si el RSSI es mayor al umbral
         if (beacon.rssi != null && beacon.rssi!! >= rssiThreshold) {
@@ -318,8 +332,8 @@ class BeaconScannerService : Service() {
                 val parsedBeacon = BeaconParser.parseIBeacon(it, beacon.rssi)
                 // CHECK uuid BEACON
 
-                if(true || parsedBeacon.uuid == UUDI) {
-
+                if(parsedBeacon.uuid == UUDI) {
+                    Log.d("LOGGER", "Beacon : ${parsedBeacon} detectado")
 
                     // Clave para identificar el beacon por su ID mayor y menor
                     val beaconId = "${parsedBeacon.major}-${parsedBeacon.minor}"
