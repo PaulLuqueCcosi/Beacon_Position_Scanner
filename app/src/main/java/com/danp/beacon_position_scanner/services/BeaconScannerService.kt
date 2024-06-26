@@ -232,8 +232,8 @@ class BeaconScannerService : Service() {
 
         if (beaconCerca.size < 3) {
             Log.d("LOGGER", "No se registran suficientes beacons")
-//            newXPosition = 1.1
-//            newYPosition = 1.1
+            newXPosition = 1.1
+            newYPosition = 1.1
         } else {
             Log.d(TAG, "LISTA: $beaconCerca")
 
@@ -242,7 +242,7 @@ class BeaconScannerService : Service() {
             val P2 = Point(beaconCerca[1].major!!.toDouble(), beaconCerca[1].minor!!.toDouble())
             val P3 = Point(beaconCerca[2].major!!.toDouble(), beaconCerca[2].minor!!.toDouble())
 
-            val R1 = beaconCerca[0].distance!! * 100;
+            val R1 = beaconCerca[0].distance!! * 100; // cm.
             val R2 = beaconCerca[1].distance!! * 100;
             val R3 = beaconCerca[2].distance!! * 100;
 

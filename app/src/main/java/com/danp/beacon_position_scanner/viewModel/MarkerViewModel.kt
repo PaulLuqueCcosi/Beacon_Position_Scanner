@@ -133,8 +133,8 @@ class MarkerViewModel : ViewModel() {
                             } else {
                                 // Actualizar las posiciones
                                 updatePosition(positionXFromService, positionYFromService)
-                                previousPosX = positionXFromService
-                                previousPosY = positionYFromService
+//                                previousPosX = positionXFromService
+//                                previousPosY = positionYFromService
                                 Log.d(TAG, "New X: $positionXFromService")
                                 Log.d(TAG, "New Y: $positionYFromService")
                             }
