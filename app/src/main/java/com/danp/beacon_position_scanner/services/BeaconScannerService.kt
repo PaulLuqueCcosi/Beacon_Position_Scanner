@@ -33,8 +33,8 @@ class BeaconScannerService : Service() {
     private val TAG = "BeaconScannerService"
     private val binder = MyBinder()
 
-    private var newXPosition: Double? = 0.0
-    private var newYPosition: Double? = 0.0
+    private var newXPosition: Double? = null
+    private var newYPosition: Double? = null
     private var nearestBeacon : Beacon? = null
 
     private lateinit var bluetoothManager: BluetoothManager
@@ -189,23 +189,37 @@ class BeaconScannerService : Service() {
 
 
     // Metodo publicos
-    fun getNewXPosition(): Double? {
+//    fun getNewXPosition(): Double? {
+//        handleBeacons(recentBeacons)
+//        val newX = newXPosition
+//        newXPosition = null  // Limpiar la variable currentGallery
+//        newYPosition = null  // Limpiar la variable nearestPainting
+//        return newX
+//    }
+//
+//    // Metodos publicos
+//    fun getNewYPosition(): Double? {
+////        hanleBeacons(recentBeacons)
+//        handleBeacons(recentBeacons)
+//        val newY = newYPosition
+//        newXPosition = null  // Limpiar la variable currentGallery
+//        newYPosition = null  // Limpiar la variable nearestPainting
+//        return newY
+//    }
+
+    fun getPosition(): ResultServiceBeacon {
         handleBeacons(recentBeacons)
-        val newX = newXPosition
-        newXPosition = null  // Limpiar la variable currentGallery
-        newYPosition = null  // Limpiar la variable nearestPainting
-        return newX
+        return if (newXPosition != null && newYPosition != null) {
+            val x = newXPosition!!
+            val y = newYPosition!!
+            newXPosition = null
+            newYPosition = null
+            ResultServiceBeacon.Success(x, y)
+        } else {
+            ResultServiceBeacon.Error(1, "No se encontraron suficientes beacons para determinar la posición")
+        }
     }
 
-    // Metodos publicos
-    fun getNewYPosition(): Double? {
-//        hanleBeacons(recentBeacons)
-        handleBeacons(recentBeacons)
-        val newY = newYPosition
-        newXPosition = null  // Limpiar la variable currentGallery
-        newYPosition = null  // Limpiar la variable nearestPainting
-        return newY
-    }
 
 
     private fun getPaintingFromMinor(major: Int, minor: Int): String {
@@ -218,8 +232,8 @@ class BeaconScannerService : Service() {
 
         if (beaconCerca.size < 3) {
             Log.d("LOGGER", "No se registran suficientes beacons")
-            newXPosition = 1.1
-            newYPosition = 1.1
+//            newXPosition = 1.1
+//            newYPosition = 1.1
         } else {
             Log.d(TAG, "LISTA: $beaconCerca")
 
@@ -315,7 +329,7 @@ class BeaconScannerService : Service() {
     }
 
     private val onScanResultAction: (ScanResult?) -> Unit = { result ->
-        Log.d(TAG, "onScanResultAction")
+        Log.d(TAG, "onScanResultAction -> Se detecto un Beacon")
 //        Log.d(TAG, result.toString())
 
         val scanRecord = result?.scanRecord
@@ -323,7 +337,7 @@ class BeaconScannerService : Service() {
             manufacturer = result?.device?.name
             rssi = result?.rssi
         }
-        Log.d(TAG, "Scanaaaa: $beacon")
+//        Log.d(TAG, "Scanaaaa: $beacon")
         val rssiThreshold = -170 // Ejemplo: Ignorar señales con RSSI menor a -100 dBm
 
         // Verificar si el RSSI es mayor al umbral

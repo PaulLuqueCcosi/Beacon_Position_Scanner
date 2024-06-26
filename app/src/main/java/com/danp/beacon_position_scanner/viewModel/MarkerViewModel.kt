@@ -16,6 +16,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.danp.beacon_position_scanner.services.BeaconScannerService
+import com.danp.beacon_position_scanner.services.ResultServiceBeacon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,10 +32,8 @@ class MarkerViewModel : ViewModel() {
         private set
 
     // Función para actualizar las posiciones del marcador
-    fun updatePosition(newPosX: Dp?, newPosY: Dp?) {
-        if(newPosX == null || newPosY == null){
-            return
-        }
+    fun updatePosition(newPosX: Dp, newPosY: Dp) {
+        // TODO: mejorar para que no se salga de la caja
         posX = newPosX
         posY = newPosY
     }
@@ -123,29 +122,29 @@ class MarkerViewModel : ViewModel() {
 
             while (isBound) {
                 beaconService?.let { service ->
-                    val positionXFromService = service.getNewXPosition()?.toDp()
-                    val positionYFromService = service.getNewYPosition()?.toDp()
 
-                    if (positionXFromService != null && positionYFromService != null) {
-                        // Verificar si las posiciones son negativas
-                        if (positionXFromService.value < 0 || positionYFromService.value < 0) {
-                            Log.d(TAG, "Negative position values detected. X: $positionXFromService, Y: $positionYFromService. Update skipped.")
-                        } else {
-                            // Actualizar las posiciones
-                            updatePosition(positionXFromService, positionYFromService)
-                            previousPosX = positionXFromService
-                            previousPosY = positionYFromService
-                            Log.d(TAG, "New X: $positionXFromService")
-                            Log.d(TAG, "New Y: $positionYFromService")
+                    when (val result = service.getPosition()) {
+                        is ResultServiceBeacon.Success -> {
+                            val positionXFromService = result.x.toDp()
+                            val positionYFromService = result.y.toDp()
+
+                            if (positionXFromService.value < 0 || positionYFromService.value < 0) {
+                                Log.d(TAG, "Negative position values detected. X: $positionXFromService, Y: $positionYFromService. Update skipped.")
+                            } else {
+                                // Actualizar las posiciones
+                                updatePosition(positionXFromService, positionYFromService)
+                                previousPosX = positionXFromService
+                                previousPosY = positionYFromService
+                                Log.d(TAG, "New X: $positionXFromService")
+                                Log.d(TAG, "New Y: $positionYFromService")
+                            }
                         }
-                    } else {
-                        // Si las posiciones son nulas, actualizar sin validar
-                        updatePosition(positionXFromService, positionYFromService)
-                        previousPosX = positionXFromService
-                        previousPosY = positionYFromService
-                        Log.d(TAG, "New X: $positionXFromService")
-                        Log.d(TAG, "New Y: $positionYFromService")
+                        is ResultServiceBeacon.Error -> {
+                            // Maneja el error aquí, por ejemplo, puedes mostrar un mensaje en el UI
+                            Log.d(TAG, "Error code: ${result.errorCode}, message: ${result.errorMessage}")
+                        }
                     }
+
                 }
                 delay(1000) // Espera 1 segundo antes de la próxima consulta
             }
