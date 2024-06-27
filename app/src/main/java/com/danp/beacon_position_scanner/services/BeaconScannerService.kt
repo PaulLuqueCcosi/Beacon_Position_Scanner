@@ -17,6 +17,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary.Beacon
 import com.danp.beacon_position_scanner.services.utilsIBeacon.beaconScanerLibrary.BeaconParser
@@ -62,28 +63,58 @@ class BeaconScannerService : Service() {
     }
 
     private fun cleanRecentBeaconsList() {
-        // Limitar el tamaño de la lista de recientes (ejemplo: últimos 3 segundos)
+        // Limitar el tamaño de la lista de recientes (ejemplo: últimos 2 segundos)
         val currentTime = System.currentTimeMillis()
         recentBeacons.removeIf { currentTime - it.timestamp > 2 * 1000 }
+    }
+
+    // Metodo publico del servicio
+    fun getPosition(): ResultServiceBeacon {
+        handleBeacons(recentBeacons)
+        return if (newXPosition != null && newYPosition != null) {
+            val x = newXPosition!!
+            val y = newYPosition!!
+            newXPosition = null
+            newYPosition = null
+            ResultServiceBeacon.Success(x, y)
+        } else {
+            ResultServiceBeacon.Error(
+                1,
+                "No se encontraron suficientes beacons para determinar la posición"
+            )
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "OnCreate BeaconScannerService")
-
         Log.d(TAG, "Check Permission")
-//        val permissionManager = PermissionManager.from(context)
-
 
         context = applicationContext // Asignar el contexto de la aplicación
         initBluetooth()
         scanCallBack = createBleScanCallback();
-
         startScannerBeacons(scanCallBack!!)
         handler.post(beaconCleanerRunnable) // Iniciar el Runnable
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy BeaconScannerService")
+        if (scanCallBack != null) {
+            bluetoothScanStop(scanCallBack!!)
+        }
+
+        handler.removeCallbacks(beaconCleanerRunnable) // Detener el Runnabl
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return super.onStartCommand(intent, flags, startId)
+        Log.d(TAG, "onStartCommand BeaconScannerService")
+    }
+    override fun onBind(intent: Intent?): IBinder? {
+        return binder
+    }
     private fun initBluetooth() {
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
@@ -99,13 +130,19 @@ class BeaconScannerService : Service() {
         if (btScanner == null)
             return
 
-//        val scanCallBack  = createBleScanCallback();
         Log.i(TAG, "Start scanning");
         if (!isLocationEnabled() || !isBluetoothEnabled()) {
             Log.d(
                 TAG,
                 "Servicios no activados - La localizacion y el Bluetooth tienen que estar activos"
             );
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    this,
+                    "Servicios no activados - La localización y el Bluetooth tienen que estar activos",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             return
         }
 
@@ -124,12 +161,6 @@ class BeaconScannerService : Service() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
         btScanner.startScan(listOf(scanFilter), scanSettings, scanCallBack)
@@ -149,73 +180,17 @@ class BeaconScannerService : Service() {
         return bluetoothAdapter.isEnabled
     }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy BeaconScannerService")
-        if (scanCallBack != null) {
-            bluetoothScanStop(scanCallBack!!)
-        }
-
-        handler.removeCallbacks(beaconCleanerRunnable) // Detener el Runnable
-
-
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return super.onStartCommand(intent, flags, startId)
-        Log.d(TAG, "onStartCommand BeaconScannerService")
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return binder
-    }
-
     private fun bluetoothScanStop(bleScanCallback: BleScanCallback) {
         Log.d(TAG, "Stopping Bluetooth scan...")
-        if (btScanner != null) {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_SCAN
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
+        if (btScanner != null && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
             btScanner.stopScan(bleScanCallback)
+            Log.d(TAG, "Stopp Bluetooth")
+
         } else {
-            Log.d(TAG, "BluetoothLeScanner is null")
+            Log.d(TAG, "BluetoothLeScanner is null or permission not granted")
         }
     }
 
-
-    fun getPosition(): ResultServiceBeacon {
-        handleBeacons(recentBeacons)
-        return if (newXPosition != null && newYPosition != null) {
-            val x = newXPosition!!
-            val y = newYPosition!!
-            newXPosition = null
-            newYPosition = null
-            ResultServiceBeacon.Success(x, y)
-        } else {
-            ResultServiceBeacon.Error(
-                1,
-                "No se encontraron suficientes beacons para determinar la posición"
-            )
-        }
-    }
-
-
-    private fun getPaintingFromMinor(major: Int, minor: Int): String {
-        // Implementa la lógica para mapear Minor a pinturas específicas dentro de una galería
-        return "Pintura $minor en Galería $major , distance ${nearestBeacon?.distance}"
-    }
 
     private fun handleBeacons(beacons: Collection<Beacon>) {
         val beaconCerca = getNearestBeacons(beacons.toList(), 3)
@@ -254,14 +229,6 @@ class BeaconScannerService : Service() {
         }
     }
 
-
-    private fun getMostFrequentMajor(beacons: List<Beacon>): Int? {
-        // Contar las apariciones de cada major en los beacons recientes
-        val majorCountMap = beacons.groupingBy { it.major }.eachCount()
-
-        // Encontrar el major con mayor frecuencia
-        return majorCountMap.maxByOrNull { it.value }?.key
-    }
 
     private fun getNearestBeacons(beacons: List<Beacon>, number: Int = 1): List<Beacon> {
 //         List to store beacons with their calculated distances
@@ -310,14 +277,12 @@ class BeaconScannerService : Service() {
 
     private val onScanResultAction: (ScanResult?) -> Unit = { result ->
         Log.d(TAG, "onScanResultAction -> Se detecto un Beacon")
-//        Log.d(TAG, result.toString())
 
         val scanRecord = result?.scanRecord
         val beacon = Beacon(result?.device?.address).apply {
             manufacturer = result?.device?.name
             rssi = result?.rssi
         }
-//        Log.d(TAG, "Scanaaaa: $beacon")
         val rssiThreshold = -170 // Ejemplo: Ignorar señales con RSSI menor a -100 dBm
 
         // Verificar si el RSSI es mayor al umbral
@@ -355,6 +320,14 @@ class BeaconScannerService : Service() {
         }
     }
 
+    private val onBatchScanResultAction: (MutableList<ScanResult>?) -> Unit = {
+        Log.d(TAG, "BatchScanResult: ${it.toString()}")
+    }
+
+    private val onScanFailedAction: (Int) -> Unit = {
+        Log.d(TAG, "ScanFailed: $it")
+    }
+
     private fun updateScannedBeaconsList(beacon: Beacon) {
         // Actualizar el timestamp del beacon
         beacon.timestamp = System.currentTimeMillis()
@@ -375,15 +348,6 @@ class BeaconScannerService : Service() {
 //
         cleanRecentBeaconsList()
 
-    }
-
-
-    private val onBatchScanResultAction: (MutableList<ScanResult>?) -> Unit = {
-        Log.d(TAG, "BatchScanResult: ${it.toString()}")
-    }
-
-    private val onScanFailedAction: (Int) -> Unit = {
-        Log.d(TAG, "ScanFailed: $it")
     }
 
     // Clase interna que extiende Binder y define métodos públicos del servicio
