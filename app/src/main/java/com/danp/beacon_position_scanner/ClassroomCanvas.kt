@@ -36,7 +36,7 @@ object ProjSizes {
     val heightL: Dp = heightCM / proportion
     val widthL: Dp = widthCM / proportion
 }
-
+//convierte una medida en Dp a pixeles utilizando la densidad actual del dispositivo
 @Composable
 fun DpToPx(dp: Dp): Float {
     val density = LocalDensity.current
@@ -49,7 +49,7 @@ fun DpToPx(dp: Dp): Float {
 fun Final(viewModel: MarkerViewModel = MarkerViewModel()) {
     val switchState = viewModel.getSwitchState().observeAsState(false)
     viewModel.setContex(LocalContext.current)
-    val statusMessage = viewModel.statusMessage.observeAsState("No datos se inicio")
+    val statusMessage = viewModel.statusMessage.observeAsState("No datos de inicio")
 
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -100,10 +100,56 @@ fun Final(viewModel: MarkerViewModel = MarkerViewModel()) {
 @Composable
 fun RoomCanvas(modifier: Modifier = Modifier) {
     Canvas(modifier) {
+        val width = ProjSizes.widthL.toPx()
+        val height = ProjSizes.heightL.toPx()
+
+        val tilesHorizontal = 17
+        val tilesVertical = 18
+
+        val tileWidth = width / tilesHorizontal
+        val tileHeight = height / tilesVertical
         drawRect(
             color = Color.LightGray,
             size = Size(ProjSizes.widthL.toPx(), ProjSizes.heightL.toPx())
         )
+        // Dibujamos las líneas de la cuadrícula horizontal
+        for (i in 1 until tilesVertical) {
+            val y = i * tileHeight
+            drawLine(
+                color = Color.Gray,
+                start = Offset(0f, y),
+                end = Offset(width, y)
+            )
+        }
+
+        // Dibujamos las líneas de la cuadrícula vertical
+        for (i in 1 until tilesHorizontal) {
+            val x = i * tileWidth
+            drawLine(
+                color = Color.Gray,
+                start = Offset(x, 0f),
+                end = Offset(x, height)
+            )
+        }
+
+        // Dibujamos el rectángulo negro entre las lozetas 8, 9, 10 de la primera columna
+        val startY = 5 * tileHeight
+        val endY = 8 * tileHeight
+        drawRect(
+            color = Color(0xFF800000),
+            topLeft = Offset(0f, startY),
+            size = Size(tileWidth, endY - startY)
+        )
+
+        // Pintamos de negro las lozetas 5 a 14 de la primera fila
+        for (i in 4 until 14) {
+            val startX = i * tileWidth
+            drawRect(
+                color = Color(0xFF87CEFA),
+                topLeft = Offset(startX, 0f),
+                size = Size(tileWidth, tileHeight)
+            )
+        }
     }
 }
 
