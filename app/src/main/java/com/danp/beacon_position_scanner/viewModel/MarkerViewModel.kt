@@ -127,8 +127,6 @@ class MarkerViewModel : ViewModel() {
     }
     private fun startPollingService() {
         viewModelScope.launch(Dispatchers.IO) {
-
-
             while (isBound) {
                 beaconService?.let { service ->
 
@@ -144,8 +142,6 @@ class MarkerViewModel : ViewModel() {
                                 // Actualizar las posiciones
                                 updatePosition(positionXFromService, positionYFromService)
                                 _statusMessage.postValue(message)
-
-
                                 Log.d(TAG, "New X: $positionXFromService")
                                 Log.d(TAG, "New Y: $positionYFromService")
                                 Log.d(TAG, message)
@@ -156,7 +152,6 @@ class MarkerViewModel : ViewModel() {
                             Log.d(TAG, "Error code: ${result.errorCode}, message: ${result.errorMessage}")
                         }
                     }
-
                 }
                 delay(1000) // Espera 1 segundo antes de la próxima consulta
             }
