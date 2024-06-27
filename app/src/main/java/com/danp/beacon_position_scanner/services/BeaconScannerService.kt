@@ -203,7 +203,7 @@ class BeaconScannerService : Service() {
             newYPosition = 1.1
             displayText = "No se registran suficientes beacons. Necesarios: 3, Detectados: ${beaconCerca.size}\n" +
                     beaconCerca.joinToString("\n") { beacon ->
-                        "Beacon (${beacon.major}, ${beacon.minor})"
+                        "Beacon (${beacon.major}, ${beacon.minor}) -> ${beacon.distance}"
                     }
         } else {
             Log.d(TAG, "LISTA: $beaconCerca")
@@ -226,11 +226,12 @@ class BeaconScannerService : Service() {
             if (receptorPosition != null) {
                 newXPosition = receptorPosition.x
                 newYPosition = receptorPosition.y
-                displayText = "Trilateración exitosa: Posición X: ${newXPosition}, Posición Y: ${newYPosition}\n" +
+                displayText = "Trilateración exitosa:\n" +
+                        "(${newXPosition}, ${newYPosition})\n" +
                         "Beacons utilizados:\n" +
-                        "Beacon 1: Posición (${P1.x}, ${P1.y}), Distancia: ${R1}\n" +
-                        "Beacon 2: Posición (${P2.x}, ${P2.y}), Distancia: ${R2}\n" +
-                        "Beacon 3: Posición (${P3.x}, ${P3.y}), Distancia: ${R3}"
+                        "B1:(${P1.x}, ${P1.y}),\t-> ${R1}\n" +
+                        "B2:(${P2.x}, ${P2.y}),\t-> ${R2}\n" +
+                        "B3:(${P3.x}, ${P3.y}),\t-> ${R3}"
             } else {
                 Log.d("LOGGER", "Error en la Trilateracion ")
 
