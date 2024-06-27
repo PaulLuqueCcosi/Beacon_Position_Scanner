@@ -35,21 +35,24 @@ class BeaconScannerService : Service() {
 
     private var newXPosition: Double? = null
     private var newYPosition: Double? = null
-    private var nearestBeacon : Beacon? = null
+    private var nearestBeacon: Beacon? = null
 
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var btScanner: BluetoothLeScanner
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private val UUDI = "2f234454cf6d4a0fadf2f4911ba9ffa6"
+
     // HashMap para almacenar los últimos 5 valores de RSSI por beacon
     private val beaconRssiMap = HashMap<String, MutableList<Int>>()
 
     // Lista para almacenar todos los beacons escaneados
     private val recentBeacons = mutableListOf<Beacon>()
+
     private var scanCallBack: BleScanCallback? = null;
 
     // Handler y Runnable para limpiar la lista de beacons recientes
     private val handler = Handler(Looper.getMainLooper())
+
     private val beaconCleanerRunnable = object : Runnable {
         override fun run() {
             cleanRecentBeaconsList()
@@ -61,7 +64,8 @@ class BeaconScannerService : Service() {
     private fun cleanRecentBeaconsList() {
         // Limitar el tamaño de la lista de recientes (ejemplo: últimos 3 segundos)
         val currentTime = System.currentTimeMillis()
-        recentBeacons.removeIf { currentTime - it.timestamp > 2 * 1000 }    }
+        recentBeacons.removeIf { currentTime - it.timestamp > 2 * 1000 }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -73,7 +77,7 @@ class BeaconScannerService : Service() {
 
         context = applicationContext // Asignar el contexto de la aplicación
         initBluetooth()
-        scanCallBack  = createBleScanCallback();
+        scanCallBack = createBleScanCallback();
 
         startScannerBeacons(scanCallBack!!)
         handler.post(beaconCleanerRunnable) // Iniciar el Runnable
@@ -91,14 +95,17 @@ class BeaconScannerService : Service() {
         }
     }
 
-    private fun startScannerBeacons(scanCallBack: BleScanCallback){
-        if(btScanner == null)
+    private fun startScannerBeacons(scanCallBack: BleScanCallback) {
+        if (btScanner == null)
             return
 
 //        val scanCallBack  = createBleScanCallback();
         Log.i(TAG, "Start scanning");
         if (!isLocationEnabled() || !isBluetoothEnabled()) {
-            Log.d(TAG, "Servicios no activados - La localizacion y el Bluetooth tienen que estar activos");
+            Log.d(
+                TAG,
+                "Servicios no activados - La localizacion y el Bluetooth tienen que estar activos"
+            );
             return
         }
 
@@ -125,13 +132,14 @@ class BeaconScannerService : Service() {
             // for ActivityCompat#requestPermissions for more details.
             return
         }
-        btScanner.startScan(listOf(scanFilter), scanSettings,scanCallBack)
+        btScanner.startScan(listOf(scanFilter), scanSettings, scanCallBack)
 
     }
 
 
     private fun isLocationEnabled(): Boolean {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+        val locationManager =
+            getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
         return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             android.location.LocationManager.NETWORK_PROVIDER
         )
@@ -145,7 +153,7 @@ class BeaconScannerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy BeaconScannerService")
-        if(scanCallBack !=null) {
+        if (scanCallBack != null) {
             bluetoothScanStop(scanCallBack!!)
         }
 
@@ -158,6 +166,7 @@ class BeaconScannerService : Service() {
         return super.onStartCommand(intent, flags, startId)
         Log.d(TAG, "onStartCommand BeaconScannerService")
     }
+
     override fun onBind(intent: Intent?): IBinder? {
         return binder
     }
@@ -186,27 +195,6 @@ class BeaconScannerService : Service() {
     }
 
 
-
-
-    // Metodo publicos
-//    fun getNewXPosition(): Double? {
-//        handleBeacons(recentBeacons)
-//        val newX = newXPosition
-//        newXPosition = null  // Limpiar la variable currentGallery
-//        newYPosition = null  // Limpiar la variable nearestPainting
-//        return newX
-//    }
-//
-//    // Metodos publicos
-//    fun getNewYPosition(): Double? {
-////        hanleBeacons(recentBeacons)
-//        handleBeacons(recentBeacons)
-//        val newY = newYPosition
-//        newXPosition = null  // Limpiar la variable currentGallery
-//        newYPosition = null  // Limpiar la variable nearestPainting
-//        return newY
-//    }
-
     fun getPosition(): ResultServiceBeacon {
         handleBeacons(recentBeacons)
         return if (newXPosition != null && newYPosition != null) {
@@ -216,10 +204,12 @@ class BeaconScannerService : Service() {
             newYPosition = null
             ResultServiceBeacon.Success(x, y)
         } else {
-            ResultServiceBeacon.Error(1, "No se encontraron suficientes beacons para determinar la posición")
+            ResultServiceBeacon.Error(
+                1,
+                "No se encontraron suficientes beacons para determinar la posición"
+            )
         }
     }
-
 
 
     private fun getPaintingFromMinor(major: Int, minor: Int): String {
@@ -273,29 +263,6 @@ class BeaconScannerService : Service() {
         return majorCountMap.maxByOrNull { it.value }?.key
     }
 
-//    private fun getNearestBeaconWithMajor(beacons: List<Beacon>, major: Int): Beacon? {
-//        // Filtrar los beacons con el major especificado
-//        val filteredBeacons = beacons.filter { it.major == major }
-//
-//        // Encontrar el beacon más cercano con el major especificado
-//        var closestBeacon: Beacon? = null
-//        var closestDistance = Double.MAX_VALUE
-//
-//        for (beacon in filteredBeacons) {
-//            val beaconId = "${beacon.major}-${beacon.minor}"
-//
-//            val distance = beacon.calculateDistanceAverageFilter(beacon.txPower!!, beacon.rssi!!, 3.0, beaconRssiMap.get(beaconId)!!)
-//            if (distance != null) {
-//                if (distance < closestDistance) {
-//                    closestDistance = distance
-//                    closestBeacon = beacon
-//                }
-//            }
-//        }
-//
-//        return closestBeacon
-//    }
-
     private fun getNearestBeacons(beacons: List<Beacon>, number: Int = 1): List<Beacon> {
 //         List to store beacons with their calculated distances
         Log.d("LOGGER", "Lista dde beacons ${beacons}")
@@ -304,19 +271,32 @@ class BeaconScannerService : Service() {
         for (beacon in beacons) {
             val beaconId = "${beacon.major}-${beacon.minor}"
 
-            val distance = beacon.calculateDistanceAverageFilter(beacon.txPower!!, beacon.rssi!!, 4.0, beaconRssiMap.get(beaconId)!!)
-            Log.i("LOGGER", "Distancia beacon (${beacon.major}, ${beacon.minor}) -> ${distance} -> ${beacon.rssi}")
+            val distance = beacon.calculateDistanceAverageFilter(
+                beacon.txPower!!,
+                beacon.rssi!!,
+                4.0,
+                beaconRssiMap.get(beaconId)!!
+            )
+            Log.i(
+                "LOGGER",
+                "Distancia beacon (${beacon.major}, ${beacon.minor}) -> ${distance} -> ${beacon.rssi}"
+            )
             if (distance != null) {
                 beaconDistanceList.add(beacon to distance)
             }
         }
-        Log.d("LOGGER","Lista actualizada : (${beaconDistanceList.size}) ${beaconDistanceList.toString()}")
+        Log.d(
+            "LOGGER",
+            "Lista actualizada : (${beaconDistanceList.size}) ${beaconDistanceList.toString()}"
+        )
         // Sort the list by distance and return the closest 'number' beacons
         val newFilterList = beaconDistanceList.sortedBy { it.second }.take(number).map { it.first }
-        Log.d("LOGGER","Lista actualizada filtrada :(${newFilterList.size}) ${newFilterList}")
-        newFilterList.map { it -> (
-            Log.e("LOGGER","B :(${it.major}, ${it.minor}) ->  ${it.distance}")
-                ) }
+        Log.d("LOGGER", "Lista actualizada filtrada :(${newFilterList.size}) ${newFilterList}")
+        newFilterList.map { it ->
+            (
+                    Log.e("LOGGER", "B :(${it.major}, ${it.minor}) ->  ${it.distance}")
+                    )
+        }
         return newFilterList
     }
 
@@ -346,7 +326,7 @@ class BeaconScannerService : Service() {
                 val parsedBeacon = BeaconParser.parseIBeacon(it, beacon.rssi)
                 // CHECK uuid BEACON
 
-                if(parsedBeacon.uuid == UUDI) {
+                if (parsedBeacon.uuid == UUDI) {
                     Log.d("LOGGER", "Beacon : ${parsedBeacon} detectado")
 
                     // Clave para identificar el beacon por su ID mayor y menor
@@ -369,7 +349,7 @@ class BeaconScannerService : Service() {
                     Log.d(TAG, "PARA Almacenar: $parsedBeacon")
                 }
             }
-        }else{
+        } else {
             Log.d(TAG, "Beacon ignorado por señal débil: $beacon")
 
         }
