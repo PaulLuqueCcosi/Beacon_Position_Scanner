@@ -49,6 +49,7 @@ fun DpToPx(dp: Dp): Float {
 fun Final(viewModel: MarkerViewModel = MarkerViewModel()) {
     val switchState = viewModel.getSwitchState().observeAsState(false)
     viewModel.setContex(LocalContext.current)
+    val statusMessage = viewModel.statusMessage.observeAsState("No datos se inicio")
 
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -73,6 +74,12 @@ fun Final(viewModel: MarkerViewModel = MarkerViewModel()) {
                 TargetPos(offset = Offset(DpToPx(viewModel.posX / ProjSizes.proportion), DpToPx(viewModel.posY / ProjSizes.proportion)))
             }
             // Spacer para alinear el botón en la parte inferior
+            Text(
+                text = statusMessage.value ?: "No status",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
             Button(
                 onClick = {
                     // Generamos nuevas posiciones aleatorias
