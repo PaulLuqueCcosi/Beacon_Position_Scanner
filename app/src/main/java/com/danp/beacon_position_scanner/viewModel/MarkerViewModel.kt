@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.danp.beacon_position_scanner.ProjSizes
 import com.danp.beacon_position_scanner.services.BeaconScannerService
 import com.danp.beacon_position_scanner.services.ResultServiceBeacon
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +37,15 @@ class MarkerViewModel : ViewModel() {
 
     // Función para actualizar las posiciones del marcador
     fun updatePosition(newPosX: Dp, newPosY: Dp) {
-        // TODO: mejorar para que no se salga de la caja
-        posX = newPosX
-        posY = newPosY
+        // Limites de la caja
+        val maxX = ProjSizes.widthCM
+        val maxY = ProjSizes.heightCM
+        val minX = 0.dp
+        val minY = 0.dp
+
+        // Verificar que las nuevas posiciones estén dentro de los límites
+        posX = newPosX.coerceIn(minX, maxX)
+        posY = newPosY.coerceIn(minY, maxY)
     }
 
 
