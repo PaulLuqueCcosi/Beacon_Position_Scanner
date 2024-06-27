@@ -43,11 +43,13 @@ class BeaconScannerService : Service() {
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private val UUDI = "2f234454cf6d4a0fadf2f4911ba9ffa6"
 
-    // HashMap para almacenar los últimos 5 valores de RSSI por beacon
+    // HashMap para almacenar los últimos 10 valores de RSSI por beacon
+    private val NUM_RSSI_IN_LIST = 10
     private val beaconRssiMap = HashMap<String, MutableList<Int>>()
 
     // Lista para almacenar todos los beacons escaneados
     private val recentBeacons = mutableListOf<Beacon>()
+
 
     private var scanCallBack: BleScanCallback? = null;
 
@@ -244,7 +246,6 @@ class BeaconScannerService : Service() {
 
 
     private fun getNearestBeacons(beacons: List<Beacon>, number: Int = 1): List<Beacon> {
-//         List to store beacons with their calculated distances
         Log.d("LOGGER", "Lista dde beacons ${beacons}")
         val beaconDistanceList = mutableListOf<Pair<Beacon, Double>>()
 
@@ -317,7 +318,7 @@ class BeaconScannerService : Service() {
                     rssiList.add(parsedBeacon.rssi ?: 0)
 
                     // Mantener la lista de RSSI limitada a los últimos 10 valores
-                    if (rssiList.size > 10) {
+                    if (rssiList.size > NUM_RSSI_IN_LIST) {
 //                    Log.e("ArtRoomViewModel", "Lleno se elimina" + rssiList.get(0) + " ingresa : " + parsedBeacon)
                         rssiList.removeAt(0) // Eliminar el valor más antiguo
                     }
