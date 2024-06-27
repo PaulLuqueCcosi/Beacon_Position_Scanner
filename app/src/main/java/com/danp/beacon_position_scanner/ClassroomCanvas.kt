@@ -40,8 +40,8 @@ fun DpToPx(dp: Dp): Float {
 @Preview(showBackground = true)
 @Composable
 fun Final() {
-    val posX: Dp = 86.dp // 0..765 Dp
-    val posY: Dp = 220.dp // 0...810 Dp/
+    val posX: Dp = 106.dp // 0..765 Dp
+    val posY: Dp = 620.dp // 0...810 Dp/
 
     val posXProp = DpToPx(dp = posX / ProjSizes.proportion)
     val posYProp = DpToPx(dp = posY / ProjSizes.proportion)
@@ -54,13 +54,72 @@ fun Final() {
                     .padding(top = 30.dp, end = 20.dp, start = 20.dp)
             ) {
                 RoomCanvas()
+                RoomCanvas2()
                 TargetPos(offset = Offset(posXProp, posYProp))
             }
         }
 
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun RoomCanvas2(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val width = ProjSizes.widthL.toPx()
+        val height = ProjSizes.heightL.toPx()
 
+        val tilesHorizontal = 17
+        val tilesVertical = 18
+
+        val tileWidth = width / tilesHorizontal
+        val tileHeight = height / tilesVertical
+
+        // Dibujar el rectángulo de la habitación
+        drawRect(
+            color = Color.LightGray,
+            size = Size(width, height)
+        )
+
+        // Dibujar las líneas de la cuadrícula horizontal
+        for (i in 1 until tilesVertical) {
+            val y = i * tileHeight
+            drawLine(
+                color = Color.Gray,
+                start = Offset(0f, y),
+                end = Offset(width, y)
+            )
+        }
+
+        // Dibujar las líneas de la cuadrícula vertical
+        for (i in 1 until tilesHorizontal) {
+            val x = i * tileWidth
+            drawLine(
+                color = Color.Gray,
+                start = Offset(x, 0f),
+                end = Offset(x, height)
+            )
+        }
+
+        // Dibujar el rectángulo negro entre las lozetas 8, 9, 10 de la primera columna
+        val startY = 7 * tileHeight
+        val endY = 10 * tileHeight
+        drawRect(
+            color = Color(0xFF800000),
+            topLeft = Offset(0f, startY),
+            size = Size(tileWidth, endY - startY)
+        )
+
+        // Pintar de negro las lozetas 5 a 14 de la primera fila
+        for (i in 4 until 14) {  // Ajuste de índices ya que queremos pintar de la lozeta 5 a 14 (índice 4 a 13)
+            val startX = i * tileWidth
+            drawRect(
+                color = Color(0xFF87CEFA),
+                topLeft = Offset(startX, 0f),
+                size = Size(tileWidth, tileHeight)
+            )
+        }
+    }
+}
 @Composable
 fun RoomCanvas(modifier: Modifier = Modifier) {
     Canvas(modifier) {
