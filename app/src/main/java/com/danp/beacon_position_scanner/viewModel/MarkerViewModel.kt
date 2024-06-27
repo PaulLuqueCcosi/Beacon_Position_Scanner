@@ -31,6 +31,9 @@ class MarkerViewModel : ViewModel() {
     var posY by mutableStateOf(350.dp)
         private set
 
+    private val _statusMessage = MutableLiveData<String>()
+    val statusMessage: LiveData<String> get() = _statusMessage
+
     // Función para actualizar las posiciones del marcador
     fun updatePosition(newPosX: Dp, newPosY: Dp) {
         // TODO: mejorar para que no se salga de la caja
@@ -117,8 +120,7 @@ class MarkerViewModel : ViewModel() {
     }
     private fun startPollingService() {
         viewModelScope.launch(Dispatchers.IO) {
-            var previousPosX: Dp? = null
-            var previousPosY: Dp? = null
+
 
             while (isBound) {
                 beaconService?.let { service ->
@@ -127,16 +129,19 @@ class MarkerViewModel : ViewModel() {
                         is ResultServiceBeacon.Success -> {
                             val positionXFromService = result.x.toDp()
                             val positionYFromService = result.y.toDp()
+                            val message = result.mensaje ?: "Información no disponible"
 
                             if (positionXFromService.value < 0 || positionYFromService.value < 0) {
                                 Log.d(TAG, "Negative position values detected. X: $positionXFromService, Y: $positionYFromService. Update skipped.")
                             } else {
                                 // Actualizar las posiciones
                                 updatePosition(positionXFromService, positionYFromService)
-//                                previousPosX = positionXFromService
-//                                previousPosY = positionYFromService
+                                _statusMessage.postValue(message)
+
+
                                 Log.d(TAG, "New X: $positionXFromService")
                                 Log.d(TAG, "New Y: $positionYFromService")
+                                Log.d(TAG, message)
                             }
                         }
                         is ResultServiceBeacon.Error -> {

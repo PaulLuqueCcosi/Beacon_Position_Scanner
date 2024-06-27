@@ -36,7 +36,7 @@ class BeaconScannerService : Service() {
 
     private var newXPosition: Double? = null
     private var newYPosition: Double? = null
-    private var nearestBeacon: Beacon? = null
+    private var displayText: String? = null
 
     private lateinit var bluetoothManager: BluetoothManager
     private lateinit var btScanner: BluetoothLeScanner
@@ -74,9 +74,11 @@ class BeaconScannerService : Service() {
         return if (newXPosition != null && newYPosition != null) {
             val x = newXPosition!!
             val y = newYPosition!!
+            val textInformacion = displayText;
             newXPosition = null
             newYPosition = null
-            ResultServiceBeacon.Success(x, y)
+            displayText = null
+            ResultServiceBeacon.Success(x, y, textInformacion)
         } else {
             ResultServiceBeacon.Error(
                 1,
@@ -199,6 +201,10 @@ class BeaconScannerService : Service() {
             Log.d("LOGGER", "No se registran suficientes beacons")
             newXPosition = 1.1
             newYPosition = 1.1
+            displayText = "No se registran suficientes beacons. Necesarios: 3, Detectados: ${beaconCerca.size}\n" +
+                    beaconCerca.joinToString("\n") { beacon ->
+                        "Beacon (${beacon.major}, ${beacon.minor})"
+                    }
         } else {
             Log.d(TAG, "LISTA: $beaconCerca")
 
@@ -220,11 +226,17 @@ class BeaconScannerService : Service() {
             if (receptorPosition != null) {
                 newXPosition = receptorPosition.x
                 newYPosition = receptorPosition.y
+                displayText = "Trilateración exitosa: Posición X: ${newXPosition}, Posición Y: ${newYPosition}\n" +
+                        "Beacons utilizados:\n" +
+                        "Beacon 1: Posición (${P1.x}, ${P1.y}), Distancia: ${R1}\n" +
+                        "Beacon 2: Posición (${P2.x}, ${P2.y}), Distancia: ${R2}\n" +
+                        "Beacon 3: Posición (${P3.x}, ${P3.y}), Distancia: ${R3}"
             } else {
                 Log.d("LOGGER", "Error en la Trilateracion ")
 
                 newXPosition = 800.0
                 newYPosition = 800.0
+                displayText = "Error en la trilateración"
             }
         }
     }
