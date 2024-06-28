@@ -12,11 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.danp.beacon_position_scanner.ui.theme.Beacon_Position_ScannerTheme
+import com.danp.beacon_position_scanner.services.utilsIBeacon.BTPermissions
 
 class MainActivity : ComponentActivity() {
+    private lateinit var btPermissions: BTPermissions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+//        btPermissions = BTPermissions(this)
+        BTPermissions(this).check()
+
         setContent {
             Beacon_Position_ScannerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -24,6 +29,10 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+
+                    // Mostrar la función Final
+                    Final()
+//                    EjemploService(ServiceSwitchViewModel())
                 }
             }
         }
